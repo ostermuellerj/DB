@@ -3,7 +3,6 @@ num_records = 4110
 record_size = 71
 
 def main():
-
 	f = open('input.txt', 'r')
 		
 	print("\n\n\n")
@@ -28,9 +27,7 @@ def main():
 	f.close()
 
 # Get record number n-th (from 1 to 4360)
-
-def getRecord(f, recordNum):
-
+def get_record(f, recordNum):
 	record = "We only have 9 records, requested record NOT_FOUND"
 	global num_records
 	global record_size
@@ -43,9 +40,7 @@ def getRecord(f, recordNum):
 	return record
 
 # Binary Search by record id
-	
-def binarySearch(f, num_id):
-
+def binary_search(f, num_id):
 	global num_records,record_size
 	low=0
 	high=num_records-1
@@ -53,7 +48,6 @@ def binarySearch(f, num_id):
 	Found = False
 	
 	while not Found and high>=low and num_id<num_records:
-	
 		middle = (low+high)/2
 		record = getRecord(f, int(middle+1))
 		middleidnum = record[0:5]
