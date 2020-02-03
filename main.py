@@ -167,7 +167,7 @@ def create_report():
 	merge()
 	f = open("report.txt","w")
 	for i in range(0, 10)
-
+		#print first ten records nicely formatted
 
 ############NOT IMPLEMENTED############
 def add_record():
@@ -190,10 +190,10 @@ def delete_record():
 # finds and returns a record given the primary key (name)
 def find_record():
 	print("findRecord")
-	key = input("Input primary key (name) to search by (case insensitive):")
 	global data, num_records, record_size
-	low=0
-	high=num_records-1
+	key = input("Input primary key (name) to search by (case insensitive):")
+	low = "aaa"
+	high = "zzz"
 	record = "requested record NOT_FOUND"
 	Found = False
 	while not Found and high>=low and num_id<num_records:
