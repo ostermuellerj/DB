@@ -18,7 +18,9 @@ state_field_size = 20
 zip_field_size = 20
 employees_field_size = 20
 
+record_line_size = rank_field_size+name_field_size+city_field_size+state_field_size+zip_field_size+employees_field_size+1
 num_fields = 6 
+
 
 config=""
 data=""
@@ -50,10 +52,10 @@ def create_database():
 			record_size = len(line)
 	read_data.close()
 	
-	num_records = entries
+	num_records = entries-1
 
 	#print("Record Size: " + str(record_size))
-	print("Record Line Size: " + str(rank_field_size+name_field_size+city_field_size+state_field_size+zip_field_size+employees_field_size))
+	print("Record Line Size: " + str(record_line_size))
 	print("Num Records: " + str(num_records))
 
 	# Create Config
@@ -112,7 +114,7 @@ def create_database():
 def open_database():
 	print("open_batabase")
 
-	global config, data, overflow
+	global Database_open, config, data, overflow
 
 	if Database_open == True:
 		print("Another database is already open, please close that database first.")
@@ -130,9 +132,10 @@ def open_database():
 def close_database():
 	print("close_database")
 
-	global config, data, overflow
+	global Database_open, config, data, overflow
 
 	if Database_open == False:
+		print("The database is not open.")
 		return
 
 	config.close()
@@ -144,98 +147,120 @@ def close_database():
 # displays name (from the config file) and the value (from the data file record)
 def display_record():
 	print("display_record")
-	if Database_open == False:
-		print("Please open the database first.")
-		return
+	# if Database_open == False:
+	# 	print("Please open the database first.")
+	# 	return
+
+	print(binary_search())
 
 ############NOT IMPLEMENTED############
 # finds input record (using same process as displayRecord), then displays contents and allows updates in a specified field.
 # the primary key is not allowed to be updated.
 def update_record():
 	print("update_record")
-	if Database_open == False:
-		print("Please open the database first.")
-		return
+	# if Database_open == False:
+	# 	print("Please open the database first.")
+	# 	return
 
 ############NOT IMPLEMENTED############
 # generates a "human readable" text file which displays the first ten records sorted by primary key
 def create_report():
 	print("create_report")
-	if Database_open == False:
-		print("Please open the database first.")
-		return
+	# if Database_open == False:
+	# 	print("Please open the database first.")
+	# 	return
 	merge()
 	f = open("report.txt","w")
-	for i in range(0, 10)
+	for i in range(0, 10):
 		#print first ten records nicely formatted
+		print()
 
 ############NOT IMPLEMENTED############
 def add_record():
 	print("add_record")
-	if Database_open == False:
-		print("Please open the database first.")
-		return
+	# if Database_open == False:
+	# 	print("Please open the database first.")
+	# 	return
 
 ############NOT IMPLEMENTED############
 def delete_record():
 	print("delete_record")
-	if Database_open == False:
-		print("Please open the database first.")
-		return
+	# if Database_open == False:
+	# 	print("Please open the database first.")
+	# 	return
 
 # OTHER FUNCTIONS
 # ////////////////////////
 
 ############NOT IMPLEMENTED############
+# # finds and returns a record given the primary key (name)
+# def binary_search():
+# 	print("findRecord")
+# 	global data, num_records, record_line_size
+# 	key = input("Input primary key (name) to search by (case insensitive):")
+# 	key = upper(key)
+# 	low = get_record(0)
+# 	high = get_record(num_records-1)
+# 	record = "requested record NOT_FOUND"
+# 	Found = False
+# 	while not Found and high>=low:
+# 		middle = (low+high)//2
+# 		record = get_record(data, int(middle+1))
+# 		middleidnum = record[0:5]
+# 		if int(middleidnum)== int(num_id):
+# 			Found=True
+# 		elif int(middleidnum)< int(num_id):
+# 			low = middle+1
+# 		else: 
+# 			high = middle-1
+	
+# 	if(Found == True):
+# 		return record
+# 	else:
+# 		return record
+
 # finds and returns a record given the primary key (name)
-def find_record():
+def binary_search():
 	print("findRecord")
-	global data, num_records, record_size
+	global data, num_records, record_line_size
 	key = input("Input primary key (name) to search by (case insensitive):")
-	low = "aaa"
-	high = "zzz"
+	key = str(key).upper()
+	low = 0
+	high = num_records-1
 	record = "requested record NOT_FOUND"
-	Found = False
-	while not Found and high>=low and num_id<num_records:
-		middle = (low+high)/2
-		record = get_record(data, int(middle+1))
-		middleidnum = record[0:5]
-		if int(middleidnum)== int(num_id):
-			Found=True
-		elif int(middleidnum)< int(num_id):
-			low = middle+1
-		else: 
-			high = middle-1
-	
-	if(Found == True):
-		return record
-	else:
-		return record
-	
+	while low <= high:
+		mid = (low+high)//2
+		mid_record = get_record(data, mid)
+		mid_key = get_key(mid_record)
+		if mid_key == key: 
+			return mid_record
+		elif mid_key > key:
+			low = mid+1
+		else:
+			high = mid-1
+	return record
+
 ############NOT IMPLEMENTED############
-def binary_search(f, num_id):
-	global num_records,record_size
-	low=0
-	high=num_records-1
-	#record = "We only have 9 records, requested record NOT_FOUND"
+def get_record(f, record_num):
+	print("get_record")
+	f = open("Fortune_500_HQ.data", "r")
+	# print(f.readline())
 	record = "requested record NOT_FOUND"
-	Found = False
+	global num_records
+	global record_line_size
 	
-	while not Found and high>=low and num_id<num_records:
-		middle = (low+high)/2
-		record = get_record(f, int(middle+1))
-		middleidnum = record[0:5]
-		if int(middleidnum)== int(num_id):
-			Found=True
-		elif int(middleidnum)< int(num_id):
-			low = middle+1
-		else: 
-			high = middle-1
-	
-	if(Found == True):
-		return record
-	else:
-		return record
+	if record_num>=0 and record_num<= num_records:
+		f.seek(0,0)
+		f.seek(((record_num) * record_line_size)) #offset from the beginning of the file
+		record = f.readline()
+		# print(record)
+	f.close()
+	return record
+
+# returns key (name) from given record
+def get_key(record):
+	print("get_key")
+	return(record[:name_field_size].rstrip(" "))
 
 ############NOT IMPLEMENTED############
 # moves all elements in overflow to their appropriate locatoin in .data
@@ -267,5 +292,9 @@ def menu():
 	elif user_input == "9":
 		close_database()
 		exit()
+	elif user_input == "0":
+		print(get_record(data, 0))
+		exit()
 
-menu()
+while True:
+	menu()
