@@ -1,7 +1,18 @@
-from helpers import *
 # DATABASE HW1
 # John Ostermueller and Gavin Glenn
 # 2/3/20
+
+from helpers import *
+from readDB import *
+
+# num_records = 4110
+# record_size = 71
+
+config=""
+data=""
+overflow=""
+
+database_open = False
 
 # REQUIRED FUNCTIONS:
 # ////////////////////////
@@ -10,13 +21,17 @@ from helpers import *
 # Fortune_500_HQ.config: contains the number of records in the data file, describes the names, sizes of the fields in order
 # Fortune_500_HQ.data: contains the data records, one per line, with fixed size fields
 # Fortune_500_HQ.overflow: initially empty
-
 def create_database():
 	print("create_database")
-	#Input File
+
+	global config
+	global data
+	global overflow
+
+	# Input File
 	csv_name = input("Input the name of a .csv file (e.g. input): ") + str(".csv")
 
-	#Get Data for files
+	# Get Data for files
 	read_data = open(str(csv_name), "r")
 	entries = 0
 	record_size = 0
@@ -31,36 +46,62 @@ def create_database():
 	print("Record Size: " + str(record_size))
 	print("Num Records: " + str(num_records))
 
-	#Create Config
+	# Create Config
 	config = open(str(csv_name[:-4])+".config", "w")
+	config.write("num_records " + str(num_records) + "\n")
+	config.write("record_size " + str(record_size) + "\n")
 	config.close()
 
-	#Create Data
+	# Create Data
 	read_data = open(str(csv_name), "r")
 	data = open(str(csv_name[:-4])+".data", "w")
 	for line in read_data:
-		#A note to mention is that when reading the from the data the actual line length
+		# A note to mention is that when reading the from the data the actual line length
 		# will be one more than the displayed line length to accomodate for \n character
 		new_line = lineset(line, record_size)
 		data.write(new_line)
 	data.close()
 	read_data.close()
 
-
-	#Create Overflow
+	# Create Overflow
 	overflow = open(str(csv_name[:-4])+".overflow", "w")
 	overflow.close()
 
-
 # opens input database.
 # if another database is already open, the user is prompted to close that database first.
-def open_batabase():
+def open_database():
 	print("open_batabase")
+
+	global config
+	global data
+	global overflow
+
+	if database_open == True:
+		print("Another database is already open, please close that database first.")
+		return
+	
+	database_open = True
 	print("Input prefix for datafiles:")
+
+	db_name = input("Input the name of a .csv file (e.g. input): ")
+	config = open(str(db_name)+".config", "w+")
+	data = open(str(db_name)+".data", "w")
+	overflow = open(str(db_name)+".overflow", "w+")
 
 # closes current database files.
 def close_database():
 	print("close_database")
+
+	global config
+	global data
+	global overflow
+
+	if database_open == False:
+		return
+
+	config.close()
+	data.close()
+	overflow.close()
 
 # finds record via primary key with seeks and binary search.
 # displays name (from the config file) and the value (from the data file record)
@@ -89,6 +130,10 @@ def delete_record():
 def find_record():
 	print("findRecord")
 
+# moves all elements in overflow to their appropriate locatoin in .data
+def merge():
+	print("merge")
+
 # displays list of 8 required functions.
 # executes a given function based on user input.
 def menu():
@@ -112,5 +157,7 @@ def menu():
 	elif user_input == "8":
 		delete_record()
 	elif user_input == "9":
+		close_database()
 		exit()
+
 menu()

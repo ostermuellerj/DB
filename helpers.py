@@ -1,4 +1,4 @@
-#Change line length for static line size
+# Change line length for static line size
 def lineset(line, length):
     line = line.rstrip()
     if len(line) > length:
