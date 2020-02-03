@@ -35,9 +35,7 @@ Database_open = False
 def create_database():
 	print("create_database")
 
-	global config
-	global data
-	global overflow
+	global config, data, overflow
 
 	# Input File
 	csv_name = input("Input the name of a .csv file (e.g. input): ") + str(".csv")
@@ -114,9 +112,7 @@ def create_database():
 def open_database():
 	print("open_batabase")
 
-	global config
-	global data
-	global overflow
+	global config, data, overflow
 
 	if Database_open == True:
 		print("Another database is already open, please close that database first.")
@@ -134,9 +130,7 @@ def open_database():
 def close_database():
 	print("close_database")
 
-	global config
-	global data
-	global overflow
+	global config, data, overflow
 
 	if Database_open == False:
 		return
@@ -145,33 +139,105 @@ def close_database():
 	data.close()
 	overflow.close()
 
+############NOT IMPLEMENTED############
 # finds record via primary key with seeks and binary search.
 # displays name (from the config file) and the value (from the data file record)
 def display_record():
 	print("display_record")
+	if Database_open == False:
+		print("Please open the database first.")
+		return
 
+############NOT IMPLEMENTED############
 # finds input record (using same process as displayRecord), then displays contents and allows updates in a specified field.
 # the primary key is not allowed to be updated.
 def update_record():
 	print("update_record")
+	if Database_open == False:
+		print("Please open the database first.")
+		return
 
+############NOT IMPLEMENTED############
 # generates a "human readable" text file which displays the first ten records sorted by primary key
 def create_report():
 	print("create_report")
+	if Database_open == False:
+		print("Please open the database first.")
+		return
+	merge()
+	f = open("report.txt","w")
+	for i in range(0, 10)
+		#print first ten records nicely formatted
 
+############NOT IMPLEMENTED############
 def add_record():
 	print("add_record")
+	if Database_open == False:
+		print("Please open the database first.")
+		return
 
+############NOT IMPLEMENTED############
 def delete_record():
 	print("delete_record")
+	if Database_open == False:
+		print("Please open the database first.")
+		return
 
 # OTHER FUNCTIONS
 # ////////////////////////
 
-# finds and returns a record given the primary key
+############NOT IMPLEMENTED############
+# finds and returns a record given the primary key (name)
 def find_record():
 	print("findRecord")
+	global data, num_records, record_size
+	key = input("Input primary key (name) to search by (case insensitive):")
+	low = "aaa"
+	high = "zzz"
+	record = "requested record NOT_FOUND"
+	Found = False
+	while not Found and high>=low and num_id<num_records:
+		middle = (low+high)/2
+		record = get_record(data, int(middle+1))
+		middleidnum = record[0:5]
+		if int(middleidnum)== int(num_id):
+			Found=True
+		elif int(middleidnum)< int(num_id):
+			low = middle+1
+		else: 
+			high = middle-1
+	
+	if(Found == True):
+		return record
+	else:
+		return record
+	
+############NOT IMPLEMENTED############
+def binary_search(f, num_id):
+	global num_records,record_size
+	low=0
+	high=num_records-1
+	#record = "We only have 9 records, requested record NOT_FOUND"
+	record = "requested record NOT_FOUND"
+	Found = False
+	
+	while not Found and high>=low and num_id<num_records:
+		middle = (low+high)/2
+		record = get_record(f, int(middle+1))
+		middleidnum = record[0:5]
+		if int(middleidnum)== int(num_id):
+			Found=True
+		elif int(middleidnum)< int(num_id):
+			low = middle+1
+		else: 
+			high = middle-1
+	
+	if(Found == True):
+		return record
+	else:
+		return record
 
+############NOT IMPLEMENTED############
 # moves all elements in overflow to their appropriate locatoin in .data
 def merge():
 	print("merge")
