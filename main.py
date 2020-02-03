@@ -1,4 +1,4 @@
-from "helpers.py" import *
+from helpers import *
 # DATABASE HW1
 # John Ostermueller and Gavin Glenn
 # 2/3/20
@@ -10,6 +10,7 @@ from "helpers.py" import *
 # Fortune_500_HQ.config: contains the number of records in the data file, describes the names, sizes of the fields in order
 # Fortune_500_HQ.data: contains the data records, one per line, with fixed size fields
 # Fortune_500_HQ.overflow: initially empty
+
 def create_database():
 	print("create_database")
 	#Input File
@@ -23,6 +24,7 @@ def create_database():
 		entries+=1
 		if len(line) > record_size:
 			record_size = len(line)
+	read_data.close()
 	
 	num_records = entries
 
@@ -31,11 +33,18 @@ def create_database():
 
 	#Create Config
 	config = open(str(csv_name[:-4])+".config", "w")
-
-	#Write Key
+	config.close()
 
 	#Create Data
+	read_data = open(str(csv_name), "r")
 	data = open(str(csv_name[:-4])+".data", "w")
+	for line in read_data:
+		#A note to mention is that when reading the from the data the actual line length
+		# will be one more than the displayed line length to accomodate for \n character
+		new_line = lineset(line, record_size)
+		data.write(new_line)
+	data.close()
+	read_data.close()
 
 
 	#Create Overflow
