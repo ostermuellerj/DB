@@ -2,18 +2,29 @@
 # John Ostermueller and Gavin Glenn
 # 2/3/20
 
+# Fortune_500_HQ
+
 from helpers import *
 from readDB import *
 
 # num_records = 4110
 # record_size = 71
 
+#RANK,NAME,CITY,STATE,ZIP,EMPLOYEES                                     
+rank_field_size = 20
+name_field_size = 60
+city_field_size = 20
+state_field_size = 20
+zip_field_size = 20
+employees_field_size = 20
+
+num_fields = 6 
+
 config=""
 data=""
 overflow=""
 
-database_open = False
-
+Database_open = False
 # REQUIRED FUNCTIONS:
 # ////////////////////////
 
@@ -43,7 +54,8 @@ def create_database():
 	
 	num_records = entries
 
-	print("Record Size: " + str(record_size))
+	#print("Record Size: " + str(record_size))
+	print("Record Line Size: " + str(rank_field_size+name_field_size+city_field_size+state_field_size+zip_field_size+employees_field_size))
 	print("Num Records: " + str(num_records))
 
 	# Create Config
@@ -52,13 +64,43 @@ def create_database():
 	config.write("record_size " + str(record_size) + "\n")
 	config.close()
 
+	# # Create Data
+	# read_data = open(str(csv_name), "r") #input .csv file
+	# data = open(str(csv_name[:-4])+".data", "w") #new .data file
+	# for line in read_data:
+	# 	# A note to mention is that when reading the from the data the actual line length
+	# 	# will be one more than the displayed line length to accomodate for \n character
+	# 	new_line = lineset(line, record_size)
+	# 	data.write(new_line)
+	# data.close()
+	# read_data.close()
+
 	# Create Data
-	read_data = open(str(csv_name), "r")
-	data = open(str(csv_name[:-4])+".data", "w")
+	read_data = open(str(csv_name), "r") #input .csv file
+	data = open(str(csv_name[:-4])+".data", "w") #new .data file
+	
 	for line in read_data:
 		# A note to mention is that when reading the from the data the actual line length
 		# will be one more than the displayed line length to accomodate for \n character
-		new_line = lineset(line, record_size)
+
+		line = line.rstrip(" ")
+		fields = line.split(",")
+		#print(fields)
+
+		if fields[0] == "RANK":
+			continue
+
+		#original order: RANK,NAME,CITY,STATE,ZIP,EMPLOYEES                                 
+		#new order: NAME,RANK,CITY,STATE,ZIP,EMPLOYEES                                 
+		new_line = fix_length(fields[1], name_field_size) # Name    
+		new_line = new_line+fix_length(fields[0], rank_field_size) # Rank
+		new_line = new_line+fix_length(fields[2], city_field_size) # City
+		new_line = new_line+fix_length(fields[3], state_field_size) # State
+		new_line = new_line+fix_length(fields[4], zip_field_size) # Zip
+		new_line = new_line+fix_length(fields[5], employees_field_size) # Employees
+
+		new_line = str(new_line) + "\n"
+		#new_line = lineset(line, record_size)
 		data.write(new_line)
 	data.close()
 	read_data.close()
@@ -76,11 +118,11 @@ def open_database():
 	global data
 	global overflow
 
-	if database_open == True:
+	if Database_open == True:
 		print("Another database is already open, please close that database first.")
 		return
 	
-	database_open = True
+	Database_open = True
 	print("Input prefix for datafiles:")
 
 	db_name = input("Input the name of a .csv file (e.g. input): ")
@@ -96,7 +138,7 @@ def close_database():
 	global data
 	global overflow
 
-	if database_open == False:
+	if Database_open == False:
 		return
 
 	config.close()
