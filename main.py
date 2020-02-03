@@ -1,3 +1,4 @@
+from "helpers.py" import *
 # DATABASE HW1
 # John Ostermueller and Gavin Glenn
 # 2/3/20
@@ -11,7 +12,36 @@
 # Fortune_500_HQ.overflow: initially empty
 def create_database():
 	print("create_database")
-	print("Input the name of a .csv file:")
+	#Input File
+	csv_name = input("Input the name of a .csv file (e.g. input): ") + str(".csv")
+
+	#Get Data for files
+	read_data = open(str(csv_name), "r")
+	entries = 0
+	record_size = 0
+	for line in read_data:
+		entries+=1
+		if len(line) > record_size:
+			record_size = len(line)
+	
+	num_records = entries
+
+	print("Record Size: " + str(record_size))
+	print("Num Records: " + str(num_records))
+
+	#Create Config
+	config = open(str(csv_name[:-4])+".config", "w")
+
+	#Write Key
+
+	#Create Data
+	data = open(str(csv_name[:-4])+".data", "w")
+
+
+	#Create Overflow
+	overflow = open(str(csv_name[:-4])+".overflow", "w")
+	overflow.close()
+
 
 # opens input database.
 # if another database is already open, the user is prompted to close that database first.
