@@ -20,6 +20,9 @@ employees_field_size = 20
 
 record_line_size = rank_field_size+name_field_size+city_field_size+state_field_size+zip_field_size+employees_field_size+1
 num_fields = 6 
+num_records = 500
+
+num_in_overflow = 0
 
 ### REMOVE THIS LATER ###
 
@@ -202,6 +205,32 @@ def add_record():
 	# if Database_open == False:
 	# 	print("Please open the database first.")
 	# 	return
+
+	global num_in_overflow
+
+	if num_in_overflow == 4:
+		merge()
+
+	user_input = input("Input the following fields separated by spaces: NAME, RANK, CITY, STATE, ZIP, EMPLOYEES\n").split(" ")
+	
+	outstring = "" + fix_length(user_input[0], name_field_size)
+	outstring += fix_length(user_input[1], rank_field_size)
+	outstring += fix_length(user_input[2], city_field_size)
+	outstring += fix_length(user_input[3], state_field_size)
+	outstring += fix_length(user_input[4], zip_field_size)
+	outstring += fix_length(user_input[5], employees_field_size)
+
+	### REMOVE THIS LATER ###
+	overflow = open("Fortune_500_HQ.overflow", "w")
+	### REMOVE THIS LATER ###
+
+	overflow.write(outstring + "\n")
+	
+	### REMOVE THIS LATER ###
+	overflow.close()
+	### REMOVE THIS LATER ###
+	
+	num_in_overflow+=1
 	
 
 ############NOT IMPLEMENTED############
@@ -261,7 +290,7 @@ def get_key(record):
 	return(record[:name_field_size].rstrip(" "))
 
 ############NOT IMPLEMENTED############
-# moves all elements in overflow to their appropriate locatoin in .data
+# moves all elements in overflow to their appropriate locatoin in .data (overflow should be empty afterwards)
 def merge():
 	print("merge")
 

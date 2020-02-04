@@ -1,4 +1,3 @@
-# Change string size
 def fix_length(string, length):
     string = string.rstrip(" \n")
     if len(string) > length:
