@@ -180,8 +180,9 @@ def update_record():
 	#Find Record location
 	location = -1
 	while location == -1:
-		location = binary_search()
+		location = binary_search(1)
 	
+	print(location)
 	#get what they want to update
 	record = get_record(data, location)
 	print(record)
@@ -292,7 +293,7 @@ def delete_record():
 # ////////////////////////
 
 # finds and returns a record given the primary key (name)
-def binary_search():
+def binary_search(op = 0):
 	print("findRecord")
 	global data, num_records, record_line_size
 	key = input("Input primary key (name) to search by (case insensitive):")
@@ -307,8 +308,7 @@ def binary_search():
 		print(mid_key)
 		if mid_key == key: 
 			print("found!")
-			return mid
-			#return mid_record
+			return mid_record if op == 0 else mid
 		elif mid_key < key:
 			print("key>mid")
 			low = mid+1
@@ -316,8 +316,7 @@ def binary_search():
 			print("key<mid")
 			high = mid-1
 	#Get the address of the found data
-	return -1 #if record not found
-	#return record
+	return record if op == 0 else -1 #if record not found
 
 #Gets a records data from the specified address (offset)
 def get_record(f, record_num):
