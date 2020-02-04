@@ -22,12 +22,13 @@ record_line_size = rank_field_size+name_field_size+city_field_size+state_field_s
 num_fields = 6 
 
 ### REMOVE THIS LATER ###
-db_name=""
-### REMOVE THIS LATER ###
 
-config=""
-data=""
-overflow=""
+#Global Open Database Declarations
+db_name = ""
+
+config = None
+data = None
+overflow = None
 
 Database_open = False
 # REQUIRED FUNCTIONS:
@@ -122,30 +123,28 @@ def create_database():
 def open_database():
 	print("open_batabase")
 
-	global Database_open, config, data, overflow
+	global db_name, config, data, overflow
 
-	if Database_open == True:
-		print("Another database is already open, please close that database first.")
+	if db_name != "":
+		print("Another database is already open, please close " + db_name + ".")
 		return
 	
-	Database_open = True
-	print("Input prefix for datafiles:")
-
-	db_name = input("Input the name of a .csv file (e.g. input): ")
-	config = open(str(db_name)+".config", "w+")
-	data = open(str(db_name)+".data", "r")
-	overflow = open(str(db_name)+".overflow", "w+")
+	db_name = input("Input the name of a database (e.g. Fortune_500_HQ): ")
+	config = open(str(db_name)+".config", "r+")
+	data = open(str(db_name)+".data", "r+")
+	overflow = open(str(db_name)+".overflow", "r+")
 
 # closes current database files.
 def close_database():
 	print("close_database")
 
-	global Database_open, config, data, overflow
+	global db_name, config, data, overflow
 
-	if Database_open == False:
+	if db_name == "":
 		print("The database is not open.")
 		return
-
+	
+	db_name = ""
 	config.close()
 	data.close()
 	overflow.close()
@@ -166,9 +165,23 @@ def display_record():
 # the primary key is not allowed to be updated.
 def update_record():
 	print("update_record")
-	# if Database_open == False:
-	# 	print("Please open the database first.")
-	# 	return
+
+	global db_name
+	if db_name == "":
+		print("Please open the database first.")
+		return
+	
+	#Find Record location
+
+
+	#get what they want to update
+
+
+	#Change the data
+
+	#remake the line
+
+	#Write the line to the file in the location
 
 ############NOT IMPLEMENTED############
 # generates a "human readable" text file which displays the first ten records sorted by primary key
@@ -201,7 +214,6 @@ def delete_record():
 # OTHER FUNCTIONS
 # ////////////////////////
 
-############NOT IMPLEMENTED############
 # finds and returns a record given the primary key (name)
 def binary_search():
 	print("findRecord")
@@ -227,7 +239,6 @@ def binary_search():
 			high = mid-1
 	return record
 
-############NOT IMPLEMENTED############
 def get_record(f, record_num):
 	print("get_record")
 	f = open(db_name+".data", "r")
