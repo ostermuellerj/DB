@@ -33,6 +33,9 @@ config = None
 data = None
 overflow = None
 
+#For changing things in the db and for the location of the currently or most recently accessed record 
+record_address = None
+
 Database_open = False
 # REQUIRED FUNCTIONS:
 # ////////////////////////
@@ -175,16 +178,61 @@ def update_record():
 		return
 	
 	#Find Record location
-
-
+	location = -1
+	while location == -1:
+		location = binary_search()
+	
 	#get what they want to update
-
-
+	record = get_record(data, location)
+	print(record)
 	#Change the data
+	record_data = [record[:60], record[60:80], record[80:100], record[100:120], record[120:140], record[140:160]]
+	print("what would you like to change?")
+	print("Enter an integer for the field you would like to change:\n1. rank\n2. city\n3. state\n4. zip\n5. # of employees\n")
+	
+	menu = input()
+	#Rank
+	if menu == 1:
+		print("Please input a new rank for" + str(record_data[1]) + ":")
+		new_rank = input()
+		new_rank = fix_length(str(new_rank), 20)
+		record_data[1] = new_rank
+	#City
+	elif menu == 2:
+		print("Please input a new city for" + str(record_data[1]) + ":")
+		new_city = input()
+		new_city = fix_length(str(new_city), 20)
+		record_data[2] = new_city
+	#State
+	elif menu == 3:
+		print("Please input a new state for" + str(record_data[1]) + ":")
+		new_state = input()
+		new_state = fix_length(str(new_state), 20)
+		record_data[3] = new_state
+	#Zip
+	elif menu == 4:
+		print("Please input a new zip for" + str(record_data[1]) + ":")
+		new_zip = input()
+		new_zip = fix_length(str(new_zip), 20)
+		record_data[4] = new_zip
+	#Number of Employees
+	elif menu == 5:
+		print("Please input a new number of employees for" + str(record_data[1]) + ":")
+		new_employees = input()
+		new_employees = fix_length(str(new_employees), 20)
+		record_data[5] = new_employees
+	#Terminate on unverified selection
+	else:
+		print("Undefined Function, returning to menu")
+		return
 
 	#remake the line
+	record_data = record_data.join("") + "\n"
 
 	#Write the line to the file in the location
+	data.seek(location)
+	data.write(record_data)
+	print("New Data has been successfully written")
 
 ############NOT IMPLEMENTED############
 # generates a "human readable" text file which displays the first ten records sorted by primary key
@@ -259,15 +307,19 @@ def binary_search():
 		print(mid_key)
 		if mid_key == key: 
 			print("found!")
-			return mid_record
+			return mid
+			#return mid_record
 		elif mid_key < key:
 			print("key>mid")
 			low = mid+1
 		else:
 			print("key<mid")
 			high = mid-1
-	return record
+	#Get the address of the found data
+	return -1 #if record not found
+	#return record
 
+#Gets a records data from the specified address (offset)
 def get_record(f, record_num):
 	print("get_record")
 	f = open(db_name+".data", "r")
