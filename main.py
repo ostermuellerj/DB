@@ -189,6 +189,7 @@ def add_record():
 	# if Database_open == False:
 	# 	print("Please open the database first.")
 	# 	return
+	
 
 ############NOT IMPLEMENTED############
 def delete_record():
