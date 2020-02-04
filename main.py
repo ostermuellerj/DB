@@ -21,6 +21,9 @@ employees_field_size = 20
 record_line_size = rank_field_size+name_field_size+city_field_size+state_field_size+zip_field_size+employees_field_size+1
 num_fields = 6 
 
+### REMOVE THIS LATER ###
+db_name=""
+### REMOVE THIS LATER ###
 
 config=""
 data=""
@@ -41,6 +44,11 @@ def create_database():
 
 	# Input File
 	csv_name = input("Input the name of a .csv file (e.g. input): ") + str(".csv")
+
+	### REMOVE THIS LATER ###
+	global db_name
+	db_name = csv_name[:-4]
+	### REMOVE THIS LATER ###
 
 	# Get Data for files
 	read_data = open(str(csv_name), "r")
@@ -125,7 +133,7 @@ def open_database():
 
 	db_name = input("Input the name of a .csv file (e.g. input): ")
 	config = open(str(db_name)+".config", "w+")
-	data = open(str(db_name)+".data", "w")
+	data = open(str(db_name)+".data", "r")
 	overflow = open(str(db_name)+".overflow", "w+")
 
 # closes current database files.
@@ -193,32 +201,6 @@ def delete_record():
 # ////////////////////////
 
 ############NOT IMPLEMENTED############
-# # finds and returns a record given the primary key (name)
-# def binary_search():
-# 	print("findRecord")
-# 	global data, num_records, record_line_size
-# 	key = input("Input primary key (name) to search by (case insensitive):")
-# 	key = upper(key)
-# 	low = get_record(0)
-# 	high = get_record(num_records-1)
-# 	record = "requested record NOT_FOUND"
-# 	Found = False
-# 	while not Found and high>=low:
-# 		middle = (low+high)//2
-# 		record = get_record(data, int(middle+1))
-# 		middleidnum = record[0:5]
-# 		if int(middleidnum)== int(num_id):
-# 			Found=True
-# 		elif int(middleidnum)< int(num_id):
-# 			low = middle+1
-# 		else: 
-# 			high = middle-1
-	
-# 	if(Found == True):
-# 		return record
-# 	else:
-# 		return record
-
 # finds and returns a record given the primary key (name)
 def binary_search():
 	print("findRecord")
@@ -232,18 +214,22 @@ def binary_search():
 		mid = (low+high)//2
 		mid_record = get_record(data, mid)
 		mid_key = get_key(mid_record)
+		print(mid_key)
 		if mid_key == key: 
+			print("found!")
 			return mid_record
-		elif mid_key > key:
+		elif mid_key < key:
+			print("key>mid")
 			low = mid+1
 		else:
+			print("key<mid")
 			high = mid-1
 	return record
 
 ############NOT IMPLEMENTED############
 def get_record(f, record_num):
 	print("get_record")
-	f = open("Fortune_500_HQ.data", "r")
+	f = open(db_name+".data", "r")
 	# print(f.readline())
 	record = "requested record NOT_FOUND"
 	global num_records
@@ -259,7 +245,7 @@ def get_record(f, record_num):
 
 # returns key (name) from given record
 def get_key(record):
-	print("get_key")
+	# print("get_key")
 	return(record[:name_field_size].rstrip(" "))
 
 ############NOT IMPLEMENTED############
@@ -293,7 +279,7 @@ def menu():
 		close_database()
 		exit()
 	elif user_input == "0":
-		print(get_record(data, 0))
+		print(get_key(get_record(data, 0)))
 		exit()
 
 while True:
