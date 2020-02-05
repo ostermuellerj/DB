@@ -5,7 +5,6 @@
 # Fortune_500_HQ
 
 from helpers import *
-from readDB import *
 
 # num_records = 4110
 # record_size = 71
@@ -18,7 +17,7 @@ state_field_size = 20
 zip_field_size = 20
 employees_field_size = 20
 
-record_line_size = rank_field_size+name_field_size+city_field_size+state_field_size+zip_field_size+employees_field_size +2
+record_line_size = rank_field_size+name_field_size+city_field_size+state_field_size+zip_field_size+employees_field_size + 2
 num_fields = 6 
 num_records = 500
 
@@ -33,10 +32,6 @@ config = None
 data = None
 overflow = None
 
-#For changing things in the db and for the location of the currently or most recently accessed record 
-record_address = None
-
-Database_open = False
 # REQUIRED FUNCTIONS:
 # ////////////////////////
 
@@ -155,7 +150,6 @@ def close_database():
 	data.close()
 	overflow.close()
 
-############NOT IMPLEMENTED############
 # finds record via primary key with seeks and binary search.
 # displays name (from the config file) and the value (from the data file record)
 def display_record():
