@@ -4,7 +4,7 @@
 
 # Fortune_500_HQ
 
-from helpers import *
+# from helpers import *
 
 # num_records = 4110
 # record_size = 71
@@ -358,7 +358,7 @@ def binary_search(op = 0, data_key = None, Run_with_merge = True):
 			#print("key<mid")
 			high = mid-1
 
-	if record == "requested record NOT_FOUND" and Run_with_merge = True:
+	if record == "requested record NOT_FOUND" and Run_with_merge == True:
 		merge()
 		binary_search(0, None, False)
 
@@ -407,6 +407,15 @@ def merge():
 	
 	data.close()
 	data = open(db_name + ".data", "r+")
+
+def fix_length(string, length):
+    string = string.rstrip(" \n")
+    if len(string) > length:
+        print("Something is seriously wrong here.")
+    else:
+        diff = length - len(string)
+        out_string = str(string) + " "*diff
+        return out_string
 
 # displays list of 8 required functions.
 # executes a given function based on user input.
