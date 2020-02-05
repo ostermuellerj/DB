@@ -62,10 +62,11 @@ def create_database():
 	print("Num Records: " + str(num_records))
 
 	# Create Config
-	config = open(str(csv_name[:-4])+".config", "w")
-	config.write("num_records " + str(num_records) + "\n")
-	config.write("record_size " + str(record_size) + "\n")
-	config.close()
+	# config = open(str(csv_name[:-4])+".config", "w")
+	# config.write("num_records " + str(num_records) + "\n")
+	# config.write("record_size " + str(record_line_size) + "\n")
+	# config.close()
+	update_config(csv_name[:-4])
 
 	# # Create Data
 	# read_data = open(str(csv_name), "r") #input .csv file
@@ -277,6 +278,7 @@ def add_record():
 	#For some reason the overflow file doesnt update so just close and reopen
 	overflow.close()
 	overflow = open(db_name + ".overflow", "r+")
+	update_config()
 
 ############NOT IMPLEMENTED############
 def delete_record():
@@ -288,9 +290,16 @@ def delete_record():
 	print("deleting record with key: " + get_key(get_record(index)))
 	#delete record
 	file_shift_delete(index)
+	update_config()
 
 # OTHER FUNCTIONS
 # ////////////////////////
+def update_config(csv_name):
+	global num_records, record_line_size
+	config = open(str(csv_name)+".config", "w")
+	config.write("There are " + str(num_records) + " records in this database.\n")
+	config.write("Each record is " + str(record_line_size) + " characters long (including the \\n).\n")
+	config.close()
 
 # shift up (leaves a copy at bottom)
 # remove a line of data by shifting subsequent lines up by 1
@@ -326,7 +335,7 @@ def file_shift_add(line_num):
 	num_records+=1
 
 # finds and returns a record given the primary key (name)
-def binary_search(op = 0, data_key = None):
+def binary_search(op = 0, data_key = None, Run_with_merge = True):
 	print("findRecord")
 	global data, num_records, record_line_size
 	key = input("Input primary key (name) to search by (case insensitive):") if data_key == None else data_key
@@ -348,6 +357,11 @@ def binary_search(op = 0, data_key = None):
 		else:
 			#print("key<mid")
 			high = mid-1
+
+	if record == "requested record NOT_FOUND" and Run_with_merge = True:
+		merge()
+		binary_search(0, None, False)
+
 	#Get the address of the found data
 	return record if op == 0 else mid if op == 2 else -1 #if record not found
 
