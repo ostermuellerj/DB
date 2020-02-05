@@ -269,7 +269,6 @@ def add_record():
 	### REMOVE THIS LATER ###
 	
 	num_in_overflow+=1
-	
 
 ############NOT IMPLEMENTED############
 def delete_record():
@@ -278,8 +277,42 @@ def delete_record():
 	# 	print("Please open the database first.")
 	# 	return
 
+
 # OTHER FUNCTIONS
 # ////////////////////////
+
+# shift up (leaves a copy at bottom)
+# remove a line of data by shifting subsequent lines up by 1
+def file_shift_delete(line_num):
+	global num_records
+
+	print("file_shift")
+	print(num_records)
+	for i in range(line_num, num_records-1):
+		print("move record #" + str(i))
+		data.seek((i+1)*record_line_size, 0)
+		record = data.readline()
+		# print(record)
+		data.seek(i*record_line_size, 0)
+		data.write(record)
+	num_records-=1
+	data.seek(i*record_line_size)
+	data.truncate();
+	# data.write(""*record_line_size)
+
+# shift down (leaves a copy at top)
+# add an empty space in .data 
+def file_shift_add(line_num):
+	print("file_shift")
+	print(num_records)
+	for i in range(num_records, line_num-1, -1):
+		print("move record #" + str(i))
+		data.seek(i*record_line_size, 0)
+		record = data.readline()
+		# print(record)
+		data.seek((i+1)*record_line_size, 0)
+		data.write(record)
+	num_records+=1
 
 # finds and returns a record given the primary key (name)
 def binary_search(op = 0, key = None):
@@ -367,8 +400,13 @@ def menu():
 		close_database()
 		exit()
 	elif user_input == "0":
-		print(binary_search(2))
-		exit()
 
+		# print(get_key(get_record(data, 500)))
+		# print(binary_search())
+    # exit()
+    #	print(binary_search(2))
+
+		file_shift_delete(0)
+		
 while True:
 	menu()
