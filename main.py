@@ -5,7 +5,6 @@
 # Fortune_500_HQ
 
 from helpers import *
-from readDB import *
 
 # num_records = 4110
 # record_size = 71
@@ -18,7 +17,7 @@ state_field_size = 20
 zip_field_size = 20
 employees_field_size = 20
 
-record_line_size = rank_field_size+name_field_size+city_field_size+state_field_size+zip_field_size+employees_field_size+1
+record_line_size = rank_field_size+name_field_size+city_field_size+state_field_size+zip_field_size+employees_field_size + 2
 num_fields = 6 
 num_records = 500
 
@@ -33,10 +32,6 @@ config = None
 data = None
 overflow = None
 
-#For changing things in the db and for the location of the currently or most recently accessed record 
-record_address = None
-
-Database_open = False
 # REQUIRED FUNCTIONS:
 # ////////////////////////
 
@@ -155,24 +150,18 @@ def close_database():
 	data.close()
 	overflow.close()
 
-############NOT IMPLEMENTED############
 # finds record via primary key with seeks and binary search.
 # displays name (from the config file) and the value (from the data file record)
 def display_record():
 	print("display_record")
-	# if Database_open == False:
-	# 	print("Please open the database first.")
-	# 	return
-
 	print(binary_search())
 
-############NOT IMPLEMENTED############
 # finds input record (using same process as displayRecord), then displays contents and allows updates in a specified field.
 # the primary key is not allowed to be updated.
 def update_record():
 	print("update_record")
 
-	global db_name
+	global db_name, data
 	if db_name == "":
 		print("Please open the database first.")
 		return
@@ -182,10 +171,10 @@ def update_record():
 	while location == -1:
 		location = binary_search(1)
 	
-	print(location)
+	#print(location)
 	#get what they want to update
 	record = get_record(data, location)
-	print(record)
+	#print(record)
 	#Change the data
 	record_data = [record[:60], record[60:80], record[80:100], record[100:120], record[120:140], record[140:160]]
 	print("what would you like to change?")
@@ -193,32 +182,32 @@ def update_record():
 	
 	menu = input()
 	#Rank
-	if menu == 1:
-		print("Please input a new rank for" + str(record_data[1]) + ":")
+	if menu == "1":
+		print("Please input a new rank for " + str(record_data[0]) + ":")
 		new_rank = input()
 		new_rank = fix_length(str(new_rank), 20)
 		record_data[1] = new_rank
 	#City
-	elif menu == 2:
-		print("Please input a new city for" + str(record_data[1]) + ":")
+	elif menu == "2":
+		print("Please input a new city for " + str(record_data[0]) + ":")
 		new_city = input()
 		new_city = fix_length(str(new_city), 20)
 		record_data[2] = new_city
 	#State
-	elif menu == 3:
-		print("Please input a new state for" + str(record_data[1]) + ":")
+	elif menu == "3":
+		print("Please input a new state for " + str(record_data[0]) + ":")
 		new_state = input()
 		new_state = fix_length(str(new_state), 20)
 		record_data[3] = new_state
 	#Zip
-	elif menu == 4:
-		print("Please input a new zip for" + str(record_data[1]) + ":")
+	elif menu == "4":
+		print("Please input a new zip for" + str(record_data[0]) + ":")
 		new_zip = input()
 		new_zip = fix_length(str(new_zip), 20)
 		record_data[4] = new_zip
 	#Number of Employees
-	elif menu == 5:
-		print("Please input a new number of employees for" + str(record_data[1]) + ":")
+	elif menu == "5":
+		print("Please input a new number of employees for " + str(record_data[0]) + ":")
 		new_employees = input()
 		new_employees = fix_length(str(new_employees), 20)
 		record_data[5] = new_employees
@@ -228,7 +217,7 @@ def update_record():
 		return
 
 	#remake the line
-	record_data = record_data.join("") + "\n"
+	record_data = "".join(record_data) + "\n"
 
 	#Write the line to the file in the location
 	data.seek(location)
@@ -326,10 +315,10 @@ def file_shift_add(line_num):
 	num_records+=1
 
 # finds and returns a record given the primary key (name)
-def binary_search(op = 0):
+def binary_search(op = 0, key = None):
 	print("findRecord")
 	global data, num_records, record_line_size
-	key = input("Input primary key (name) to search by (case insensitive):")
+	key = input("Input primary key (name) to search by (case insensitive):") if key == None else key
 	key = str(key).upper()
 	low = 0
 	high = num_records-1
@@ -349,7 +338,7 @@ def binary_search(op = 0):
 			print("key<mid")
 			high = mid-1
 	#Get the address of the found data
-	return record if op == 0 else -1 #if record not found
+	return record if op == 0 else mid if op == 2 else -1 #if record not found
 
 #Gets a records data from the specified address (offset)
 def get_record(f, record_num):
@@ -377,6 +366,13 @@ def get_key(record):
 # moves all elements in overflow to their appropriate locatoin in .data (overflow should be empty afterwards)
 def merge():
 	print("merge")
+	global data, overflow
+	#Get data from overflow
+	for line in overflow:
+		key = overflow[:60]
+		#Find indexes for each line
+		index = binary_search(2, key)
+		#insert into the data file
 
 # displays list of 8 required functions.
 # executes a given function based on user input.
@@ -404,11 +400,13 @@ def menu():
 		close_database()
 		exit()
 	elif user_input == "0":
+
 		# print(get_key(get_record(data, 500)))
 		# print(binary_search())
+    # exit()
+    #	print(binary_search(2))
 
 		file_shift_delete(0)
-		# exit()
-
+		
 while True:
 	menu()
