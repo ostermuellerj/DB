@@ -17,7 +17,7 @@ state_field_size = 20
 zip_field_size = 20
 employees_field_size = 20
 
-record_line_size = rank_field_size+name_field_size+city_field_size+state_field_size+zip_field_size+employees_field_size + 2
+record_line_size = rank_field_size+name_field_size+city_field_size+state_field_size+zip_field_size+employees_field_size + 1
 num_fields = 6 
 num_records = 500
 
@@ -147,6 +147,10 @@ def close_database():
 # displays name (from the config file) and the value (from the data file record)
 def display_record():
 	print("display_record")
+	global db_name
+	if db_name == "":
+		print("Please open the database first.")
+		return
 	print(binary_search())
 
 # finds input record (using same process as displayRecord), then displays contents and allows updates in a specified field.
@@ -226,9 +230,21 @@ def create_report():
 	# 	return
 	merge()
 	f = open("report.txt","w")
+	f.write("Below are the top ten records sorted by primary key (NAME):\n\n")
 	for i in range(0, 10):
 		#print first ten records nicely formatted
-		print()
+		
+		record = get_record(data, i)
+		out = str(i+1) + ". " + "NAME: " + record[:60] + "\n"
+		out += "   RANK: " + record[60:80] + "\n"
+		out += "   CITY: " + record[80:100] + "\n"
+		out += "   STATE: " + record[100:120] + "\n"
+		out += "   ZIP: " + record[120:140] + "\n"
+		out += "   EMPLOYEES: " + record[140:160] + "\n\n"
+
+		print(out)
+		f.write(out)
+	f.close()
 
 def add_record():
 	print("add_record")
@@ -241,8 +257,7 @@ def add_record():
 		count += 1
 	num_in_overflow = count
 
-	#stop here for testing merge
-	if num_in_overflow == 1:
+	if num_in_overflow >= 4:
 		merge()
 		num_in_overflow = 0
 		overflow.seek(0)
