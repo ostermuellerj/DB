@@ -23,8 +23,6 @@ num_records = 500
 
 num_in_overflow = 0
 
-### REMOVE THIS LATER ###
-
 #Global Open Database Declarations
 db_name = ""
 
@@ -46,11 +44,6 @@ def create_database():
 
 	# Input File
 	csv_name = input("Input the name of a .csv file (e.g. input): ") + str(".csv")
-
-	### REMOVE THIS LATER ###
-	global db_name
-	db_name = csv_name[:-4]
-	### REMOVE THIS LATER ###
 
 	# Get Data for files
 	read_data = open(str(csv_name), "r")
@@ -237,17 +230,23 @@ def create_report():
 		#print first ten records nicely formatted
 		print()
 
-############NOT IMPLEMENTED############
 def add_record():
 	print("add_record")
-	# if Database_open == False:
-	# 	print("Please open the database first.")
-	# 	return
 
-	global num_in_overflow
+	global num_in_overflow, overflow
 
-	if num_in_overflow == 4:
+	#count how many are in overflow
+	count = 0
+	for line in overflow:
+		count += 1
+	num_in_overflow = count
+
+	#stop here for testing merge
+	if num_in_overflow == 1:
 		merge()
+		num_in_overflow = 0
+		overflow.seek(0)
+		overflow.truncate()
 
 	user_input = input("Input the following fields separated by spaces: NAME, RANK, CITY, STATE, ZIP, EMPLOYEES\n").split(" ")
 	
@@ -258,25 +257,22 @@ def add_record():
 	outstring += fix_length(user_input[4], zip_field_size)
 	outstring += fix_length(user_input[5], employees_field_size)
 
-	### REMOVE THIS LATER ###
-	overflow = open("Fortune_500_HQ.overflow", "w")
-	### REMOVE THIS LATER ###
-
 	overflow.write(outstring + "\n")
-	
-	### REMOVE THIS LATER ###
+
+	#For some reason the overflow file doesnt update so just close and reopen
 	overflow.close()
-	### REMOVE THIS LATER ###
-	
-	num_in_overflow+=1
+	overflow = open(db_name + ".overflow", "r+")
 
 ############NOT IMPLEMENTED############
 def delete_record():
-	print("delete_record")
-	# if Database_open == False:
-	# 	print("Please open the database first.")
-	# 	return
+	global data
 
+	print("delete_record")
+	#find index of record to delete
+	index = binary_search(1)
+	print("deleting record with key: " + get_key(get_record(index)))
+	#delete record
+	file_shift_delete(index)
 
 # OTHER FUNCTIONS
 # ////////////////////////
@@ -286,10 +282,9 @@ def delete_record():
 def file_shift_delete(line_num):
 	global num_records
 
-	print("file_shift")
-	print(num_records)
+	print("file_shift_delete")
 	for i in range(line_num, num_records-1):
-		print("move record #" + str(i))
+		#print("move record #" + str(i))
 		data.seek((i+1)*record_line_size, 0)
 		record = data.readline()
 		# print(record)
@@ -297,16 +292,17 @@ def file_shift_delete(line_num):
 		data.write(record)
 	num_records-=1
 	data.seek(i*record_line_size)
-	data.truncate();
+	data.truncate()
 	# data.write(""*record_line_size)
 
 # shift down (leaves a copy at top)
 # add an empty space in .data 
 def file_shift_add(line_num):
-	print("file_shift")
-	print(num_records)
+	global num_records
+	
+	print("file_shift_add")
 	for i in range(num_records, line_num-1, -1):
-		print("move record #" + str(i))
+		#print("move record #" + str(i))
 		data.seek(i*record_line_size, 0)
 		record = data.readline()
 		# print(record)
@@ -315,46 +311,44 @@ def file_shift_add(line_num):
 	num_records+=1
 
 # finds and returns a record given the primary key (name)
-def binary_search(op = 0, key = None):
+def binary_search(op = 0, data_key = None):
 	print("findRecord")
 	global data, num_records, record_line_size
-	key = input("Input primary key (name) to search by (case insensitive):") if key == None else key
+	key = input("Input primary key (name) to search by (case insensitive):") if data_key == None else data_key
 	key = str(key).upper()
 	low = 0
 	high = num_records-1
 	record = "requested record NOT_FOUND"
 	while low <= high:
 		mid = (low+high)//2
-		mid_record = get_record(data, mid)
+		mid_record = get_record(mid)
 		mid_key = get_key(mid_record)
-		print(mid_key)
+		#print(mid_key)
 		if mid_key == key: 
 			print("found!")
 			return mid_record if op == 0 else mid
 		elif mid_key < key:
-			print("key>mid")
+			#print("key>mid")
 			low = mid+1
 		else:
-			print("key<mid")
+			#print("key<mid")
 			high = mid-1
 	#Get the address of the found data
 	return record if op == 0 else mid if op == 2 else -1 #if record not found
 
 #Gets a records data from the specified address (offset)
-def get_record(f, record_num):
-	print("get_record")
-	f = open(db_name+".data", "r")
+def get_record(record_num):
+	global data, num_records, record_line_size
+
+	#print("get_record")
 	# print(f.readline())
 	record = "requested record NOT_FOUND"
-	global num_records
-	global record_line_size
-	
+
 	if record_num>=0 and record_num<= num_records:
-		f.seek(0,0)
-		f.seek(((record_num) * record_line_size)) #offset from the beginning of the file
-		record = f.readline()
+		data.seek(0,0)
+		data.seek(((record_num) * record_line_size)) #offset from the beginning of the file
+		record = data.readline()
 		# print(record)
-	f.close()
 	return record
 
 # returns key (name) from given record
@@ -368,11 +362,22 @@ def merge():
 	print("merge")
 	global data, overflow
 	#Get data from overflow
-	for line in overflow:
-		key = overflow[:60]
+	overflow.seek(0)
+	somedata = overflow.read()
+	somedata = somedata.split("\n")[:-1]
+	#print(somedata)
+	for line in somedata:
+		key = line[:60].upper()
 		#Find indexes for each line
 		index = binary_search(2, key)
 		#insert into the data file
+		file_shift_add(index)
+		data.seek(index)
+		#print("Line: " + line)
+		data.write(line + "\n")
+	
+	data.close()
+	data = open(db_name + ".data", "r+")
 
 # displays list of 8 required functions.
 # executes a given function based on user input.
@@ -400,13 +405,7 @@ def menu():
 		close_database()
 		exit()
 	elif user_input == "0":
+		print(get_key(get_record(0)))
 
-		# print(get_key(get_record(data, 500)))
-		# print(binary_search())
-    # exit()
-    #	print(binary_search(2))
-
-		file_shift_delete(0)
-		
 while True:
 	menu()
