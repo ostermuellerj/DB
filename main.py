@@ -360,7 +360,7 @@ def binary_search(op = 0, data_key = None, Run_with_merge = True):
 
 	if record == "requested record NOT_FOUND" and Run_with_merge == True:
 		merge()
-		binary_search(0, None, False)
+		binary_search(0, key, False)
 
 	#Get the address of the found data
 	return record if op == 0 else mid if op == 2 else -1 #if record not found
