@@ -17,7 +17,7 @@ state_field_size = 20
 zip_field_size = 20
 employees_field_size = 20
 
-record_line_size = rank_field_size+name_field_size+city_field_size+state_field_size+zip_field_size+employees_field_size + 2
+record_line_size = rank_field_size+name_field_size+city_field_size+state_field_size+zip_field_size+employees_field_size + 1
 num_fields = 6 
 num_records = 500
 
@@ -46,11 +46,6 @@ def create_database():
 
 	# Input File
 	csv_name = input("Input the name of a .csv file (e.g. input): ") + str(".csv")
-
-	### REMOVE THIS LATER ###
-	global db_name
-	db_name = csv_name[:-4]
-	### REMOVE THIS LATER ###
 
 	# Get Data for files
 	read_data = open(str(csv_name), "r")
@@ -154,6 +149,10 @@ def close_database():
 # displays name (from the config file) and the value (from the data file record)
 def display_record():
 	print("display_record")
+	global db_name
+	if db_name == "":
+		print("Please open the database first.")
+		return
 	print(binary_search())
 
 # finds input record (using same process as displayRecord), then displays contents and allows updates in a specified field.
@@ -233,9 +232,21 @@ def create_report():
 	# 	return
 	merge()
 	f = open("report.txt","w")
+	f.write("Below are the top ten records sorted by primary key (NAME):\n\n")
 	for i in range(0, 10):
 		#print first ten records nicely formatted
-		print()
+		
+		record = get_record(data, i)
+		out = str(i+1) + ". " + "NAME: " + record[:60] + "\n"
+		out += "   RANK: " + record[60:80] + "\n"
+		out += "   CITY: " + record[80:100] + "\n"
+		out += "   STATE: " + record[100:120] + "\n"
+		out += "   ZIP: " + record[120:140] + "\n"
+		out += "   EMPLOYEES: " + record[140:160] + "\n\n"
+
+		print(out)
+		f.write(out)
+	f.close()
 
 ############NOT IMPLEMENTED############
 def add_record():
@@ -246,7 +257,7 @@ def add_record():
 
 	global num_in_overflow
 
-	if num_in_overflow == 4:
+	if num_in_overflow >= 4:
 		merge()
 
 	user_input = input("Input the following fields separated by spaces: NAME, RANK, CITY, STATE, ZIP, EMPLOYEES\n").split(" ")
@@ -316,7 +327,7 @@ def file_shift_add(line_num):
 
 # finds and returns a record given the primary key (name)
 def binary_search(op = 0, key = None):
-	print("findRecord")
+	# print("findRecord")
 	global data, num_records, record_line_size
 	key = input("Input primary key (name) to search by (case insensitive):") if key == None else key
 	key = str(key).upper()
@@ -342,7 +353,7 @@ def binary_search(op = 0, key = None):
 
 #Gets a records data from the specified address (offset)
 def get_record(f, record_num):
-	print("get_record")
+	# print("get_record")
 	f = open(db_name+".data", "r")
 	# print(f.readline())
 	record = "requested record NOT_FOUND"
