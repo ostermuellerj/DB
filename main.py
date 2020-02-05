@@ -288,10 +288,10 @@ def delete_record():
 # ////////////////////////
 
 # finds and returns a record given the primary key (name)
-def binary_search(op = 0):
+def binary_search(op = 0, key = None):
 	print("findRecord")
 	global data, num_records, record_line_size
-	key = input("Input primary key (name) to search by (case insensitive):")
+	key = input("Input primary key (name) to search by (case insensitive):") if key == None else key
 	key = str(key).upper()
 	low = 0
 	high = num_records-1
@@ -339,6 +339,13 @@ def get_key(record):
 # moves all elements in overflow to their appropriate locatoin in .data (overflow should be empty afterwards)
 def merge():
 	print("merge")
+	global data, overflow
+	#Get data from overflow
+	for line in overflow:
+		key = overflow[:60]
+		#Find indexes for each line
+		index = binary_search(2, key)
+		#insert into the data file
 
 # displays list of 8 required functions.
 # executes a given function based on user input.
@@ -366,7 +373,7 @@ def menu():
 		close_database()
 		exit()
 	elif user_input == "0":
-		print(get_key(get_record(data, 1)))
+		print(binary_search(2))
 		exit()
 
 while True:
