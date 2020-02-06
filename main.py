@@ -171,7 +171,7 @@ def update_record():
 	
 	#print(location)
 	#get what they want to update
-	record = get_record(data, location)
+	record = get_record(location)
 	#print(record)
 	#Change the data
 	record_data = [record[:60], record[60:80], record[80:100], record[100:120], record[120:140], record[140:160]]
@@ -218,7 +218,7 @@ def update_record():
 	record_data = "".join(record_data) + "\n"
 
 	#Write the line to the file in the location
-	data.seek(location)
+	data.seek(location * record_line_size)
 	data.write(record_data)
 	print("New Data has been successfully written")
 
@@ -250,7 +250,11 @@ def create_report():
 def add_record():
 	print("add_record")
 
-	global num_in_overflow, overflow
+	global num_in_overflow, overflow, db_name
+
+	if db_name == "":
+		print("database not open")
+		return
 
 	#count how many are in overflow
 	count = 0
@@ -273,12 +277,12 @@ def add_record():
 	outstring += fix_length(user_input[4], zip_field_size)
 	outstring += fix_length(user_input[5], employees_field_size)
 
+	overflow.seek(num_in_overflow*record_line_size)
 	overflow.write(outstring + "\n")
 
 	#For some reason the overflow file doesnt update so just close and reopen
-	overflow.close()
-	overflow = open(db_name + ".overflow", "r+")
-	update_config()
+	update_overflow()
+	update_config(db_name)
 
 ############NOT IMPLEMENTED############
 def delete_record():
@@ -300,6 +304,16 @@ def update_config(csv_name):
 	config.write("There are " + str(num_records) + " records in this database.\n")
 	config.write("Each record is " + str(record_line_size) + " characters long (including the \\n).\n")
 	config.close()
+
+def update_data():
+	global db_name, data
+	data.close()
+	data = open(db_name+ ".data", "r+")
+
+def update_overflow():
+	global db_name, overflow
+	overflow.close()
+	overflow = open(db_name+ ".overflow", "r+")
 
 # shift up (leaves a copy at bottom)
 # remove a line of data by shifting subsequent lines up by 1
@@ -335,6 +349,7 @@ def file_shift_add(line_num):
 	num_records+=1
 
 # finds and returns a record given the primary key (name)
+# op = 0 is standard usage, op = 1 is for returining location of found key, op = 2 is for returning location for potential key
 def binary_search(op = 0, data_key = None, Run_with_merge = True):
 	print("findRecord")
 	global data, num_records, record_line_size
@@ -357,8 +372,8 @@ def binary_search(op = 0, data_key = None, Run_with_merge = True):
 		else:
 			#print("key<mid")
 			high = mid-1
-
-	if record == "requested record NOT_FOUND" and Run_with_merge == True:
+	
+	if record == "requested record NOT_FOUND" and Run_with_merge == True and op == 0:
 		merge()
 		binary_search(0, key, False)
 
@@ -401,12 +416,10 @@ def merge():
 		index = binary_search(2, key)
 		#insert into the data file
 		file_shift_add(index)
-		data.seek(index)
+		data.seek(index*record_line_size)
 		#print("Line: " + line)
 		data.write(line + "\n")
-	
-	data.close()
-	data = open(db_name + ".data", "r+")
+	update_data()
 
 def fix_length(string, length):
     string = string.rstrip(" \n")
@@ -443,7 +456,7 @@ def menu():
 		close_database()
 		exit()
 	elif user_input == "0":
-		print(get_key(get_record(0)))
+		print(binary_search(2, str(input())))
 
 while True:
 	menu()
