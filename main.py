@@ -2,13 +2,7 @@
 # John Ostermueller and Gavin Glenn
 # 2/3/20
 
-# Fortune_500_HQ
-
-# from helpers import *
-
-# num_records = 4110
-# record_size = 71
-
+#Field Size Declarations
 rank_field_size = 20
 name_field_size = 60
 city_field_size = 20
@@ -20,6 +14,7 @@ record_line_size = rank_field_size+name_field_size+city_field_size+state_field_s
 num_fields = 6 
 num_records = 500
 
+#Number of items in overflow
 num_in_overflow = 0
 
 #Global Open Database Declarations
@@ -30,14 +25,13 @@ data = None
 overflow = None
 
 # REQUIRED FUNCTIONS:
-# ////////////////////////
 
 # converts input .csv into triplet of files:
 # Fortune_500_HQ.config: contains the number of records in the data file, describes the names, sizes of the fields in order
 # Fortune_500_HQ.data: contains the data records, one per line, with fixed size fields
 # Fortune_500_HQ.overflow: initially empty
 def create_database():
-	print("create_database")
+	print("CREATING DATABASE")
 
 	global config, data, overflow
 
@@ -61,22 +55,7 @@ def create_database():
 	print("Num Records: " + str(num_records))
 
 	# Create Config
-	# config = open(str(csv_name[:-4])+".config", "w")
-	# config.write("num_records " + str(num_records) + "\n")
-	# config.write("record_size " + str(record_line_size) + "\n")
-	# config.close()
 	update_config(csv_name[:-4])
-
-	# # Create Data
-	# read_data = open(str(csv_name), "r") #input .csv file
-	# data = open(str(csv_name[:-4])+".data", "w") #new .data file
-	# for line in read_data:
-	# 	# A note to mention is that when reading the from the data the actual line length
-	# 	# will be one more than the displayed line length to accomodate for \n character
-	# 	new_line = lineset(line, record_size)
-	# 	data.write(new_line)
-	# data.close()
-	# read_data.close()
 
 	# Create Data
 	read_data = open(str(csv_name), "r") #input .csv file
@@ -103,7 +82,6 @@ def create_database():
 		new_line = new_line+fix_length(fields[5], employees_field_size) # Employees
 
 		new_line = str(new_line) + "\n"
-		#new_line = lineset(line, record_size)
 		data.write(new_line)
 	data.close()
 	read_data.close()
@@ -115,7 +93,7 @@ def create_database():
 # opens input database.
 # if another database is already open, the user is prompted to close that database first.
 def open_database():
-	print("open_batabase")
+	print("OPENING DATABASE " + db_name)
 
 	global db_name, config, data, overflow
 
@@ -130,7 +108,7 @@ def open_database():
 
 # closes current database files.
 def close_database():
-	print("close_database")
+	print("CLOSING DATABASE " + db_name)
 
 	global db_name, config, data, overflow
 
@@ -146,7 +124,8 @@ def close_database():
 # finds record via primary key with seeks and binary search.
 # displays name (from the config file) and the value (from the data file record)
 def display_record():
-	print("display_record")
+	print("DISPLAYING RECORD")
+
 	global db_name
 	if db_name == "":
 		print("Please open the database first.")
@@ -156,7 +135,7 @@ def display_record():
 # finds input record (using same process as displayRecord), then displays contents and allows updates in a specified field.
 # the primary key is not allowed to be updated.
 def update_record():
-	print("update_record")
+	print("UPDATE RECORD")
 
 	global db_name, data
 	if db_name == "":
@@ -168,10 +147,9 @@ def update_record():
 	while location == -1:
 		location = binary_search(1)
 	
-	#print(location)
 	#get what they want to update
 	record = get_record(location)
-	#print(record)
+
 	#Change the data
 	record_data = [record[:60], record[60:80], record[80:100], record[100:120], record[120:140], record[140:160]]
 	print("what would you like to change?")
@@ -221,19 +199,20 @@ def update_record():
 	data.write(record_data)
 	print("New Data has been successfully written")
 
-############NOT IMPLEMENTED############
 # generates a "human readable" text file which displays the first ten records sorted by primary key
 def create_report():
-	print("create_report")
-	# if Database_open == False:
-	# 	print("Please open the database first.")
-	# 	return
+	print("CREATING REPORT")
+
+	if db_name == "":
+		print("Please open the database first.")
+		return
+
 	merge()
 	f = open("report.txt","w")
 	f.write("Below are the top ten records sorted by primary key (NAME):\n\n")
 	for i in range(0, 10):
+
 		#print first ten records nicely formatted
-		
 		record = get_record(i)
 		out = str(i+1) + ". " + "NAME: " + record[:60] + "\n"
 		out += "   RANK: " + record[60:80] + "\n"
@@ -246,8 +225,9 @@ def create_report():
 		f.write(out)
 	f.close()
 
+# adds a record to the database by taking in information
 def add_record():
-	print("add_record")
+	print("ADD RECORD")
 
 	global num_in_overflow, overflow, db_name
 
@@ -259,10 +239,6 @@ def add_record():
 	overflow.seek(0,0)
 	if overflow.readline() == "":
 		num_in_overflow=0
-	# count = 0
-	# for line in overflow:
-	# 	count += 1
-	# num_in_overflow = count
 
 	if num_in_overflow >= 4:
 		merge()
@@ -283,19 +259,14 @@ def add_record():
 	update_overflow()
 	update_config(db_name)
 
-	#count how many are in overflow
-	# count = 0
-	# for line in overflow:
-	# 	count += 1
-	# num_in_overflow = count
+	#update count of overflow
 	num_in_overflow+=1
 
-
-############NOT IMPLEMENTED############
+# Deletes a record given an input of the key
 def delete_record():
 	global data
+	print("DELETE RECORD")
 
-	print("delete_record")
 	#find index of record to delete
 	index = binary_search(1)
 	print("deleting record with key: " + get_key(get_record(index)))
@@ -304,7 +275,8 @@ def delete_record():
 	update_config(db_name)
 
 # OTHER FUNCTIONS
-# ////////////////////////
+
+#updates and writes to config
 def update_config(csv_name):
 	global num_records, record_line_size
 	config = open(str(csv_name)+".config", "w")
@@ -312,11 +284,13 @@ def update_config(csv_name):
 	config.write("Each record is " + str(record_line_size) + " characters long (including the \\n).\n")
 	config.close()
 
+#updates and rewrites to data
 def update_data():
 	global db_name, data
 	data.close()
 	data = open(db_name+ ".data", "r+")
 
+#updates and rewrites to overflow
 def update_overflow():
 	global db_name, overflow
 	overflow.close()
@@ -326,13 +300,9 @@ def update_overflow():
 # remove a line of data by shifting subsequent lines up by 1
 def file_shift_delete(line_num):
 	global num_records
-
-	print("file_shift_delete")
 	for i in range(line_num, num_records):
-		#print("move record #" + str(i))
 		data.seek((i+1)*record_line_size, 0)
 		record = data.readline()
-		# print(record)
 		data.seek(i*record_line_size, 0)
 		data.write(record)
 	num_records-=1
@@ -344,8 +314,7 @@ def file_shift_delete(line_num):
 # add an empty space in .data 
 def file_shift_add(line_num):
 	global num_records
-	
-	print("file_shift_add")
+
 	for i in range(num_records, line_num-1, -1):
 		#print("move record #" + str(i))
 		data.seek(i*record_line_size, 0)
@@ -398,8 +367,6 @@ def binary_search(op = 0, data_key = None):
 def get_record(record_num):
 	global data, num_records, record_line_size
 
-	#print("get_record")
-	# print(f.readline())
 	record = "requested record NOT_FOUND"
 
 	if record_num>=0 and record_num<= num_records:
@@ -411,10 +378,8 @@ def get_record(record_num):
 
 # returns key (name) from given record
 def get_key(record):
-	# print("get_key")
 	return(record[:name_field_size].rstrip(" "))
 
-############NOT IMPLEMENTED############
 # moves all elements in overflow to their appropriate locatoin in .data (overflow should be empty afterwards)
 def merge():
 	print("merge")
@@ -431,7 +396,6 @@ def merge():
 		#insert into the data file
 		file_shift_add(index)
 		data.seek(index*record_line_size)
-		#print("Line: " + line)
 		data.write(line + "\n")
 	update_data()
 
@@ -439,7 +403,7 @@ def merge():
 	overflow.seek(0)
 	overflow.truncate()
 
-
+# fixes length of strings to insert into the database
 def fix_length(string, length):
     string = string.rstrip(" \n")
     if len(string) > length:
@@ -482,5 +446,6 @@ def menu():
 		# 	print("empty")
 		merge()
 
+# always display the menu until system exit
 while True:
 	menu()
