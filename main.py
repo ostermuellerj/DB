@@ -256,18 +256,18 @@ def add_record():
 		return
 
 	#count how many are in overflow
-	count = 0
-	for line in overflow:
-		count += 1
-	num_in_overflow = count
+	overflow.seek(0,0)
+	if overflow.readline() == "":
+		num_in_overflow=0
+	# count = 0
+	# for line in overflow:
+	# 	count += 1
+	# num_in_overflow = count
 
 	if num_in_overflow >= 4:
 		merge()
-		num_in_overflow = 0
-		overflow.seek(0)
-		overflow.truncate()
 
-	user_input = input("Input the following fields separated by spaces: NAME, RANK, CITY, STATE, ZIP, EMPLOYEES\n").upper().split(" ")
+	user_input = input("Input the following fields separated by commas: NAME, RANK, CITY, STATE, ZIP, EMPLOYEES\n").upper().split(",")
 	
 	outstring = "" + fix_length(user_input[0], name_field_size)
 	outstring += fix_length(user_input[1], rank_field_size)
@@ -276,7 +276,7 @@ def add_record():
 	outstring += fix_length(user_input[4], zip_field_size)
 	outstring += fix_length(user_input[5], employees_field_size)
 
-	overflow.seek(num_in_overflow*record_line_size)
+	overflow.seek((num_in_overflow)*record_line_size, 0)
 	overflow.write(outstring + "\n")
 
 	#For some reason the overflow file doesnt update so just close and reopen
@@ -284,10 +284,11 @@ def add_record():
 	update_config(db_name)
 
 	#count how many are in overflow
-	count = 0
-	for line in overflow:
-		count += 1
-	num_in_overflow = count
+	# count = 0
+	# for line in overflow:
+	# 	count += 1
+	# num_in_overflow = count
+	num_in_overflow+=1
 
 
 ############NOT IMPLEMENTED############
@@ -300,7 +301,7 @@ def delete_record():
 	print("deleting record with key: " + get_key(get_record(index)))
 	#delete record
 	file_shift_delete(index)
-	update_config()
+	update_config(db_name)
 
 # OTHER FUNCTIONS
 # ////////////////////////
@@ -327,7 +328,7 @@ def file_shift_delete(line_num):
 	global num_records
 
 	print("file_shift_delete")
-	for i in range(line_num, num_records-1):
+	for i in range(line_num, num_records):
 		#print("move record #" + str(i))
 		data.seek((i+1)*record_line_size, 0)
 		record = data.readline()
@@ -417,7 +418,7 @@ def get_key(record):
 # moves all elements in overflow to their appropriate locatoin in .data (overflow should be empty afterwards)
 def merge():
 	print("merge")
-	global data, overflow
+	global data, overflow, num_in_overflow
 	#Get data from overflow
 	overflow.seek(0)
 	somedata = overflow.read()
@@ -426,13 +427,18 @@ def merge():
 	for line in somedata:
 		key = line[:60].upper()
 		#Find indexes for each line
-		index = binary_search(2, key)
+		index = binary_search(2, key)+1
 		#insert into the data file
 		file_shift_add(index)
 		data.seek(index*record_line_size)
 		#print("Line: " + line)
 		data.write(line + "\n")
 	update_data()
+
+	num_in_overflow = 0
+	overflow.seek(0)
+	overflow.truncate()
+
 
 def fix_length(string, length):
     string = string.rstrip(" \n")
@@ -470,7 +476,11 @@ def menu():
 		exit()
 	elif user_input == "0":
 		# print(binary_search(2, str(input())))
-		print(num_in_overflow)
+		# print(num_in_overflow)
+		# overflow.seek(0,0)
+		# if overflow.readline() == "":
+		# 	print("empty")
+		merge()
 
 while True:
 	menu()
