@@ -9,7 +9,6 @@
 # num_records = 4110
 # record_size = 71
 
-#RANK,NAME,CITY,STATE,ZIP,EMPLOYEES                                     
 rank_field_size = 20
 name_field_size = 60
 city_field_size = 20
@@ -268,7 +267,7 @@ def add_record():
 		overflow.seek(0)
 		overflow.truncate()
 
-	user_input = input("Input the following fields separated by spaces: NAME, RANK, CITY, STATE, ZIP, EMPLOYEES\n").split(" ")
+	user_input = input("Input the following fields separated by spaces: NAME, RANK, CITY, STATE, ZIP, EMPLOYEES\n").upper().split(" ")
 	
 	outstring = "" + fix_length(user_input[0], name_field_size)
 	outstring += fix_length(user_input[1], rank_field_size)
@@ -283,6 +282,13 @@ def add_record():
 	#For some reason the overflow file doesnt update so just close and reopen
 	update_overflow()
 	update_config(db_name)
+
+	#count how many are in overflow
+	count = 0
+	for line in overflow:
+		count += 1
+	num_in_overflow = count
+
 
 ############NOT IMPLEMENTED############
 def delete_record():
@@ -350,7 +356,7 @@ def file_shift_add(line_num):
 
 # finds and returns a record given the primary key (name)
 # op = 0 is standard usage, op = 1 is for returining location of found key, op = 2 is for returning location for potential key
-def binary_search(op = 0, data_key = None, Run_with_merge = True):
+def binary_search(op = 0, data_key = None):
 	print("findRecord")
 	global data, num_records, record_line_size
 	key = input("Input primary key (name) to search by (case insensitive):") if data_key == None else data_key
@@ -358,6 +364,17 @@ def binary_search(op = 0, data_key = None, Run_with_merge = True):
 	low = 0
 	high = num_records-1
 	record = "requested record NOT_FOUND"
+
+	#search for key in overflow
+	if op==0:	
+		# print(num_in_overflow)
+		for i in range(num_in_overflow):
+			overflow.seek(i*record_line_size, 0)
+			overflow_record = overflow.readline()
+			# print(overflow_record)
+			if get_key(overflow_record) == key:
+				return overflow_record
+
 	while low <= high:
 		mid = (low+high)//2
 		mid_record = get_record(mid)
@@ -372,10 +389,6 @@ def binary_search(op = 0, data_key = None, Run_with_merge = True):
 		else:
 			#print("key<mid")
 			high = mid-1
-	
-	if record == "requested record NOT_FOUND" and Run_with_merge == True and op == 0:
-		merge()
-		return binary_search(0, key, False)
 
 	#Get the address of the found data
 	return record if op == 0 else mid if op == 2 else -1 #if record not found
@@ -456,7 +469,8 @@ def menu():
 		close_database()
 		exit()
 	elif user_input == "0":
-		print(binary_search(2, str(input())))
+		# print(binary_search(2, str(input())))
+		print(num_in_overflow)
 
 while True:
 	menu()
