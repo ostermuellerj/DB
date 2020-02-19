@@ -93,10 +93,8 @@ def create_database():
 # opens input database.
 # if another database is already open, the user is prompted to close that database first.
 def open_database():
-	print("OPENING DATABASE " + db_name)
-
 	global db_name, config, data, overflow
-
+	print("OPENING DATABASE " + db_name)
 	if db_name != "":
 		print("Another database is already open, please close " + db_name + ".")
 		return
@@ -108,10 +106,8 @@ def open_database():
 
 # closes current database files.
 def close_database():
-	print("CLOSING DATABASE " + db_name)
-
 	global db_name, config, data, overflow
-
+	print("CLOSING DATABASE " + db_name)
 	if db_name == "":
 		print("The database is not open.")
 		return
