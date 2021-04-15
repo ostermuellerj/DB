@@ -2,7 +2,7 @@
 
 This simple database utilizes a memory-concious overflow buffer for adding entries. The database is sorted while the buffer is not. When the buffer grows larger than four records, the entries in the buffer are sorted with the rest of the records. No more than a few records are ever held in memory at the same time.
 
-![Fortune_500_HQ.data](db.png)
+![Fortune_500_HQ.data](db-data.png)
 
 Below is a list of menu operations:
 1. **Create new database**: Prompts the user for the name of a .csv file (e.g., "Fortune_500_HQ") to convert into a triplet of files: 
